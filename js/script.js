@@ -6,12 +6,15 @@ const form = document.querySelector('#form')
 const inputTransactionName = document.querySelector('#text')
 const inputTransactionAmount = document.querySelector('#amount')
 
-const typeTransactions = [
-    {id: 1, name:"Camisa", amount: -50},
-    {id: 2, name:"Freelance", amount: 250},
-    {id: 3, name:"Almoço", amount: -50},
-    {id: 4, name:"Salário", amount: 600},
-]
+const localStorageTransaction = JSON.parse(localStorage.getItem('transaction'))
+
+let transactions = localStorage.getItem('transaction') !== null ? localStorageTransaction : []
+
+const removeTransaction = ID => {
+    transactions = transactions.filter(transaction => transaction.id !== ID)
+    addLocalStorage()
+    loadTransactions()
+}
 
 const addTransactionInDom = transaction => {
     const operator = transaction.amount < 0 ? '-' : '+'
@@ -21,13 +24,15 @@ const addTransactionInDom = transaction => {
 
     li.classList.add(CSSClass)
     li.innerHTML =  `
-        ${transaction.name} <span> ${operator} R$ ${valueAbsolute}</span><button class="delete-btn">x</button>
+        ${transaction.name} 
+        <span> ${operator} R$ ${valueAbsolute}</span>
+        <button class="delete-btn" onclick='removeTransaction(${transaction.id})'>x</button>
     `
     ul.prepend(li)
 }
 
 const updateTransactionValues = () => {
-    const transactiosAmount = typeTransactions
+    const transactiosAmount = transactions
         .map(transaction => transaction.amount)
     const total = transactiosAmount
         .reduce((accumulator, transaction) => accumulator + transaction, 0)
@@ -48,17 +53,21 @@ const updateTransactionValues = () => {
 
 const loadTransactions = () => {
     ul.innerHTML = '';
-    typeTransactions.forEach(addTransactionInDom)
+    transactions.forEach(addTransactionInDom)
     updateTransactionValues();
 }
 
 loadTransactions()
 
+const addLocalStorage = () => {
+    localStorage.setItem('transaction', JSON.stringify(transactions))
+}
+
 form.addEventListener('submit', event => {
     event.preventDefault()
     const transactionName = inputTransactionName.value.trim()
     const transactionAmount  = inputTransactionAmount.value.trim()
-    const createID = typeTransactions.length + 1
+    const createID = transactions.length + 1
 
     if( transactionName === '' || transactionAmount === ''){
         alert("Preecha todos os campos")
@@ -71,8 +80,9 @@ form.addEventListener('submit', event => {
         amount: Number(transactionAmount)
     }
 
-    typeTransactions.push(transaction)
+    transactions.push(transaction)
     loadTransactions()
+    addLocalStorage()
 
     transactionName.value = ''
     transactionAmount.value = ''
