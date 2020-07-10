@@ -1,4 +1,8 @@
 const ul = document.querySelector('#transactions')
+const totalDisplay = document.querySelector('#balance')
+const icomeDisplay = document.querySelector('#money-plus')
+const expenseDisplay = document.querySelector('#money-minus')
+
 
 const typeTransactions = [
     {id: 1, name:"Camisa", amount: -50},
@@ -20,6 +24,29 @@ const addTransactionInDom = transaction => {
     ul.prepend(li)
 }
 
+const updateTransactionValues = () => {
+    const transactiosAmount = typeTransactions
+        .map(transaction => transaction.amount)
+    const total = transactiosAmount
+        .reduce((accumulator, transaction) => accumulator + transaction, 0)
+        .toFixed(2)
+    const income = transactiosAmount
+        .filter((value) => value > 0)
+        .reduce((accumulator,value) => accumulator + value, 0)
+        .toFixed(2)
+    const expense = Math.abs(transactiosAmount
+        .filter((value) => value < 0)
+        .reduce((accumulator,value) => accumulator + value, 0))
+        .toFixed(2)
+    
+    totalDisplay.textContent =` R$ ${total}`
+    icomeDisplay.textContent = ` R$ ${income}`
+    expenseDisplay.textContent = ` R$ ${expense}`
+}
 
-addTransactionInDom(typeTransactions[1])
-addTransactionInDom(typeTransactions[0])
+const loadTransactions = () => {
+    typeTransactions.forEach(addTransactionInDom)
+    updateTransactionValues();
+}
+
+loadTransactions()
