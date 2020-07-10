@@ -2,7 +2,9 @@ const ul = document.querySelector('#transactions')
 const totalDisplay = document.querySelector('#balance')
 const icomeDisplay = document.querySelector('#money-plus')
 const expenseDisplay = document.querySelector('#money-minus')
-
+const form = document.querySelector('#form')
+const inputTransactionName = document.querySelector('#text')
+const inputTransactionAmount = document.querySelector('#amount')
 
 const typeTransactions = [
     {id: 1, name:"Camisa", amount: -50},
@@ -45,8 +47,34 @@ const updateTransactionValues = () => {
 }
 
 const loadTransactions = () => {
+    ul.innerHTML = '';
     typeTransactions.forEach(addTransactionInDom)
     updateTransactionValues();
 }
 
 loadTransactions()
+
+form.addEventListener('submit', event => {
+    event.preventDefault()
+    const transactionName = inputTransactionName.value.trim()
+    const transactionAmount  = inputTransactionAmount.value.trim()
+    const createID = typeTransactions.length + 1
+
+    if( transactionName === '' || transactionAmount === ''){
+        alert("Preecha todos os campos")
+        return
+    }
+
+    const transaction = {
+        id: createID,
+        name: transactionName,
+        amount: Number(transactionAmount)
+    }
+
+    typeTransactions.push(transaction)
+    loadTransactions()
+
+    transactionName.value = ''
+    transactionAmount.value = ''
+
+})
