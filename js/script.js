@@ -16,35 +16,40 @@ const removeTransaction = ID => {
     loadTransactions()
 }
 
-const addTransactionInDom = transaction => {
-    const operator = transaction.amount < 0 ? '-' : '+'
-    const CSSClass = transaction.amount < 0 ? 'minus' : 'plus'
-    const valueAbsolute = Math.abs(transaction.amount);
+const addTransactionInDom = ({id,name,amount}) => {
+    const operator = amount < 0 ? '-' : '+'
+    const CSSClass = amount < 0 ? 'minus' : 'plus'
+    const valueAbsolute = Math.abs(amount);
     const li = document.createElement('li')
 
     li.classList.add(CSSClass)
     li.innerHTML =  `
-        ${transaction.name} 
+        ${name} 
         <span> ${operator} R$ ${valueAbsolute}</span>
-        <button class="delete-btn" onclick='removeTransaction(${transaction.id})'>x</button>
+        <button class="delete-btn" onclick='removeTransaction(${id})'>x</button>
     `
     ul.prepend(li)
 }
 
+const getExpense = transactionAmount => Math.abs(transactionAmount
+    .filter((value) => value < 0)
+    .reduce((accumulator,value) => accumulator + value, 0))
+    .toFixed(2) 
+
+const getIncome = transactionAmount => transactionAmount
+    .filter((value) => value > 0)
+    .reduce((accumulator,value) => accumulator + value, 0)
+    .toFixed(2)
+
+const getTotal = transactionAmount => transactionAmount
+    .reduce((accumulator, transaction) => accumulator + transaction, 0)
+    .toFixed(2)
+
 const updateTransactionValues = () => {
-    const transactiosAmount = transactions
-        .map(transaction => transaction.amount)
-    const total = transactiosAmount
-        .reduce((accumulator, transaction) => accumulator + transaction, 0)
-        .toFixed(2)
-    const income = transactiosAmount
-        .filter((value) => value > 0)
-        .reduce((accumulator,value) => accumulator + value, 0)
-        .toFixed(2)
-    const expense = Math.abs(transactiosAmount
-        .filter((value) => value < 0)
-        .reduce((accumulator,value) => accumulator + value, 0))
-        .toFixed(2)
+    const transactionAmount = transactions.map(({amount}) => amount)
+    const total = getTotal(transactionAmount)
+    const income = getIncome(transactionAmount) 
+    const expense = getExpense(transactionAmount)
     
     totalDisplay.textContent =` R$ ${total}`
     icomeDisplay.textContent = ` R$ ${income}`
@@ -63,17 +68,8 @@ const addLocalStorage = () => {
     localStorage.setItem('transaction', JSON.stringify(transactions))
 }
 
-form.addEventListener('submit', event => {
-    event.preventDefault()
-    const transactionName = inputTransactionName.value.trim()
-    const transactionAmount  = inputTransactionAmount.value.trim()
+const addToTransactionArray = (transactionName,transactionAmount) => {
     const createID = transactions.length + 1
-
-    if( transactionName === '' || transactionAmount === ''){
-        alert("Preecha todos os campos")
-        return
-    }
-
     const transaction = {
         id: createID,
         name: transactionName,
@@ -81,10 +77,32 @@ form.addEventListener('submit', event => {
     }
 
     transactions.push(transaction)
+}
+
+const cleanInput = () => {
+    inputTransactionName.value = ''
+    inputTransactionAmount.value = ''
+
+}
+const hadleFormSubmit = event => {
+    event.preventDefault()
+    const transactionName = inputTransactionName.value.trim()
+    const transactionAmount  = inputTransactionAmount.value.trim()
+    
+    const isSomeInputEmpty = transactionName === '' || transactionAmount === '' 
+
+    if(isSomeInputEmpty ){
+        alert("Preecha todos os campos")
+        return
+    }
+
+     addToTransactionArray(transactionName,transactionAmount)
+
     loadTransactions()
     addLocalStorage()
+    cleanInput();
 
-    transactionName.value = ''
-    transactionAmount.value = ''
 
-})
+}
+
+form.addEventListener('submit', hadleFormSubmit)
