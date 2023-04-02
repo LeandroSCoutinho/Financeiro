@@ -2,6 +2,9 @@
 
 Este é um projeto simples para controle de despesas, criado com HTML, CSS e Javascript. Ele foi desenvolvido como uma forma de estudo de manipulação do DOM e funções em Javascript.  
 
+# Prévia
+![screenshot](https://github.com/LeandroSCoutinho/Financeiro/blob/master/img/Screenshot.png)
+
 # Funcionalidades  
 
 O sistema permite ao usuário cadastrar despesas e ver o saldo atual. As funcionalidades são as seguintes:  
